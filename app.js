@@ -11,62 +11,131 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 
 
-// Write code to use inquirer to gather information about the development team members,
-const questions = [
-  {
+//code to use inquirer to gather information about the development team members,
+const questions = [{
     type: "input",
-    name:"mName",
-    message:"Hello Manager, before we fill out the rest of your team we'll get your info, What is your name?"
-  },
-  {
-    type: "input",
-    name:"mId",
-    message:"What is your Id?"
+    name: "mName",
+    message: "Hello Manager, before we fill out the rest of your team we'll get your info, What is your name?"
   },
   {
     type: "input",
-    name:"mEmail",
-    message:"What is your Email address?"
+    name: "mId",
+    message: "What is your Id?"
   },
   {
     type: "input",
-    name:"mOn",
-    message:"What is your Office Number?"
+    name: "mEmail",
+    message: "What is your Email address?"
   },
   {
-    type: "number",
-    name: "engineers",
-    message: "How many engineers on your team?"
-  },
-  {
-    type: "number",
-    name: "interns",
-    message: "How many interns on your team?"
+    type: "input",
+    name: "mOn",
+    message: "What is your Office Number?"
   }
 ]
-// and to create objects for each team member (using the correct classes as blueprints!)
-if(!fs.existsSync(OUTPUT_DIR)){
-  fs.mkdirSync(OUTPUT_DIR)
+const enquest = [{
+    type: "input",
+    name: "name",
+    message: "What is the name of the engineer?"
+  },
+  {
+    type: "input",
+    name: "id",
+    message: "What is the id?"
+  },
+  {
+    type: "input",
+    name: "email",
+    message: "What is the Email address?"
+  },
+  {
+    type: "input",
+    name: "github",
+    message: "What is the Github username?"
+  }
+]
+const inquest = [{
+    type: "input",
+    name: "name",
+    message: "What is the name of the Intern?"
+  },
+  {
+    type: "input",
+    name: "id",
+    message: "What is the id?"
+  },
+  {
+    type: "input",
+    name: "email",
+    message: "What is the Email address?"
+  },
+  {
+    type: "input",
+    name: "school",
+    message: "What is the School Name?"
+  }
+]
+let employees = []
+
+
+async function main(){
+const getManager = await inquirer.prompt(questions)
+  .then(data => {
+    let me = new Manager(data.mName, data.mId, data.mEmail, data.mOn);
+    employees.push(me);
+    return (employees);
+  })
 }
-inquirer.prompt(questions)
-.then(data => {
-let me = new Manager(data.mName, data.mId, data.mEmail, data.mOn)
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
-let employees = [me];
-let html = render(employees);
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
-fs.writeFile(outputPath, html, function(err){
-  if (err) throw err;
-  console.log("file saved")
+main().then(() => {
+    inquirer.prompt([{
+  type: 'list',
+  name: 'memberChoice',
+  message: 'Would you like to add a team member?',
+  choices: [
+    'Engineer',
+    'Intern',
+    'I am done adding team members. Make my file!'
+  ]
+}]).then(userChoice => {
+  switch (userChoice.memberChoice) {
+    case 'Engineer':
+      addEn();
+      break;
+    case 'Intern':
+      addIn();
+      break;
+    default:
+      save();
+  }
 });
 });
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+function addEn() {
+  inquirer.prompt(enquest)
+    .then(edata => {
+      let engineer = new Engineer(edata.name, edata.id, edata.email, edata.github);
+      employees.push(engineer);
+      return employees;
+    })
+}
+
+function addIn() {
+  inquirer.prompt(inquest)
+    .then(idata => {
+      let intern = new Intern(idata.name, idata.id, idata.email, idata.school);
+      employees.push(intern);
+      return employees;
+    })
+}
+const save = () => {
+  // to create an HTML file using the `render` function. write it to a file named `team.html` in the `output` folder. use the variable `outputPath` 
+  //check if the `output` folder exists and create it if it does not.
+  if (!fs.existsSync(OUTPUT_DIR)) {
+    fs.mkdirSync(OUTPUT_DIR)
+  }
+  let html = render(employees);
+  fs.writeFile(outputPath, html, function (err) {
+    if (err) throw err;
+    console.log("file saved")
+  });
+}
