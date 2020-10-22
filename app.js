@@ -78,15 +78,16 @@ const inquest = [{
 let employees = []
 
 
-async function main(){
-const getManager = await inquirer.prompt(questions)
+function main(){
+inquirer.prompt(questions)
   .then(data => {
     let me = new Manager(data.mName, data.mId, data.mEmail, data.mOn);
     employees.push(me);
+    choose()
     return (employees);
   })
 }
-main().then(() => {
+function choose () {
     inquirer.prompt([{
   type: 'list',
   name: 'memberChoice',
@@ -108,14 +109,14 @@ main().then(() => {
       save();
   }
 });
-});
+}
 
 function addEn() {
   inquirer.prompt(enquest)
     .then(edata => {
       let engineer = new Engineer(edata.name, edata.id, edata.email, edata.github);
       employees.push(engineer);
-      return employees;
+      choose();
     })
 }
 
@@ -124,7 +125,7 @@ function addIn() {
     .then(idata => {
       let intern = new Intern(idata.name, idata.id, idata.email, idata.school);
       employees.push(intern);
-      return employees;
+      choose();
     })
 }
 const save = () => {
@@ -139,3 +140,4 @@ const save = () => {
     console.log("file saved")
   });
 }
+main();
